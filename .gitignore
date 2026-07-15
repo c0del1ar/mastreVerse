@@ -1,0 +1,9 @@
+# Build artifacts
+/mastreverse
+/bin/mastreverse
+
+# Runtime output
+/Result/
+/*.log
+/testdata/*.log
+
