@@ -4,10 +4,10 @@ import (
 	"bufio"
 	"flag"
 	"fmt"
+	"mastreverse/internal/core"
+	"mastreverse/internal/tools"
 	"os"
 )
-
-var Version = "v1.0.0"
 
 func main() {
 	var showVer bool
@@ -16,20 +16,25 @@ func main() {
 	flag.Parse()
 
 	if showVer {
-		fmt.Printf("mastreVerse %s\n", Version)
+		fmt.Printf("mastreVerse %s\n", core.Version)
 		return
 	}
 
-	tool := selectTool()
+	tool := core.SelectTool()
 
-	if rd == nil {
-		rd = bufio.NewReader(os.Stdin)
+	if core.Rd == nil {
+		core.Rd = bufio.NewReader(os.Stdin)
 	}
 
 	if tool == 1 {
-		runBlacklistMenu()
+		tools.RunBlacklistMenu()
 		return
 	}
 
-	runReverseIPLookup()
+	if tool == 3 {
+		tools.RunOpenPortMenu()
+		return
+	}
+
+	tools.RunReverseIPLookup()
 }

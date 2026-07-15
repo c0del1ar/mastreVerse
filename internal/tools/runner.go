@@ -1,7 +1,8 @@
-package main
+package tools
 
 import (
 	"fmt"
+	"mastreverse/internal/core"
 	"os"
 	"strings"
 	"sync"
@@ -9,11 +10,11 @@ import (
 	"time"
 )
 
-func run(targets []string, opts Options, threads int) {
+func Run(targets []string, opts core.Options, threads int) {
 	os.MkdirAll("Result", 0o755)
 	outFile, ferr := os.Create("Result/reversed.txt")
 	if ferr != nil {
-		fmt.Printf("  %s[!] Cannot create output file: %v%s\n", red, ferr, rst)
+		fmt.Printf("  %s[!] Cannot create output file: %v%s\n", core.Red, ferr, core.Rst)
 	} else {
 		defer outFile.Close()
 	}
@@ -22,7 +23,7 @@ func run(targets []string, opts Options, threads int) {
 	var done int64
 
 	// ── Printer goroutine (single writer to stdout) ──
-	pch := make(chan Msg, 1024)
+	pch := make(chan core.Msg, 1024)
 	var prWg sync.WaitGroup
 	prWg.Add(1)
 	go func() {
@@ -40,7 +41,7 @@ func run(targets []string, opts Options, threads int) {
 				fmt.Print(msg.Text)
 			case "spin":
 				fmt.Printf("\r\033[K  %s%s%s %s",
-					cyan+bold, frames[fi%len(frames)], rst, msg.Text)
+					core.Cyan+core.Bold, frames[fi%len(frames)], core.Rst, msg.Text)
 				fi++
 				spinning = true
 			case "clear":
@@ -65,11 +66,11 @@ func run(targets []string, opts Options, threads int) {
 				if total > 0 {
 					pct = int(float64(d) / float64(total) * 28)
 				}
-				bar := green + strings.Repeat("▓", pct) + dim + strings.Repeat("░", 28-pct) + rst
-				pch <- Msg{"spin", fmt.Sprintf(
+				bar := core.Green + strings.Repeat("▓", pct) + core.Dim + strings.Repeat("░", 28-pct) + core.Rst
+				pch <- core.Msg{"spin", fmt.Sprintf(
 					"%s[%s%s]%s  %s%d/%d%s  scanning...",
-					bold+cyan, bar, bold+cyan, rst,
-					bold+yellow, d, total, rst,
+					core.Bold+core.Cyan, bar, core.Bold+core.Cyan, core.Rst,
+					core.Bold+core.Yellow, d, total, core.Rst,
 				)}
 			case <-spinStop:
 				return
@@ -90,14 +91,14 @@ func run(targets []string, opts Options, threads int) {
 			defer wg.Done()
 			defer func() { <-sem }()
 
-			r := lookupAll(target, opts)
+			r := LookupAll(target, opts)
 			n := int(atomic.AddInt64(&done, 1))
 
-			pch <- Msg{"result", fmtResult(r, n, int(total))}
+			pch <- core.Msg{"result", core.FmtResult(r, n, int(total))}
 
 			if outFile != nil {
 				fileMu.Lock()
-				fmt.Fprint(outFile, fmtFile(r))
+				fmt.Fprint(outFile, core.FmtFile(r))
 				fileMu.Unlock()
 			}
 		}()
@@ -105,7 +106,7 @@ func run(targets []string, opts Options, threads int) {
 
 	wg.Wait()
 	close(spinStop)
-	pch <- Msg{"clear", ""}
+	pch <- core.Msg{"clear", ""}
 	close(pch)
 	prWg.Wait()
 }

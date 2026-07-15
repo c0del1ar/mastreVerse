@@ -1,4 +1,4 @@
-package main
+package core
 
 import (
 	"bufio"
@@ -7,21 +7,21 @@ import (
 	"strings"
 )
 
-func ask(label, hint string) string {
-	fmt.Printf("  %s%s%s  %s%s%s\n  %s»%s ",
-		bold+cyan, label, rst,
-		dim, hint, rst,
-		green+bold, rst)
-	line, _ := rd.ReadString('\n')
+func Ask(label, hint string) string {
+	fmt.Printf("  %s%s%s  %s%s%s\n  %s❯%s ",
+		Bold+Cyan, label, Rst,
+		Dim, hint, Rst,
+		Cyan+Bold, Rst)
+	line, _ := Rd.ReadString('\n')
 	return strings.TrimFunc(line, func(r rune) bool {
 		return r == '\n' || r == '\r' || r == ' ' || r == '\t'
 	})
 }
 
-func loadTargets(path string) []string {
+func LoadTargets(path string) []string {
 	f, err := os.Open(path)
 	if err != nil {
-		fmt.Printf("  %s[!] Cannot open file: %v%s\n", red+bold, err, rst)
+		fmt.Printf("  %s[!] Cannot open file: %v%s\n", Red+Bold, err, Rst)
 		os.Exit(1)
 	}
 	defer f.Close()

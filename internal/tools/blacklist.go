@@ -1,14 +1,14 @@
-package main
+package tools
 
 import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"mastreverse/internal/core"
 	"net/http"
 	"net/url"
 	"regexp"
 	"strings"
-	"time"
 )
 
 type userResp struct {
@@ -19,26 +19,24 @@ type lookupResp struct {
 	HTMLValue string `json:"HTML_Value"`
 }
 
-func blacklistCheck(target string) {
-	cls()
-	banner()
-	fmt.Printf("  %sBLACKLIST CHECKER%s\n", bold+cyan, rst)
-	sep()
-	fmt.Printf("  %sTarget:%s %s\n\n", dim, rst, target)
-	fmt.Printf("  %s[~]%s Requesting token...\n", yellow+bold, rst)
-
-	hc := &http.Client{Timeout: 15 * time.Second}
+func BlacklistCheck(target string) {
+	core.Cls()
+	core.Banner()
+	fmt.Printf("  %sBLACKLIST CHECKER%s\n", core.Bold+core.Cyan, core.Rst)
+	core.Sep()
+	fmt.Printf("  %sTarget:%s %s\n\n", core.Dim, core.Rst, target)
+	fmt.Printf("  %s[~]%s Requesting token...\n", core.Yellow+core.Bold, core.Rst)
 
 	// 1. Get TempAuthKey
 	reqU, _ := http.NewRequest("GET", "https://mxtoolbox.com/api/v1/user", nil)
 	reqU.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36")
 	reqU.Header.Set("Referer", "https://mxtoolbox.com/SuperTool.aspx")
 
-	resU, err := hc.Do(reqU)
+	resU, err := core.Hc.Do(reqU)
 	if err != nil {
-		fmt.Printf("  %s[!] Network error (auth):%s %v\n\n", red+bold, rst, err)
-		fmt.Printf("  %sPress ENTER to return%s", dim, rst)
-		rd.ReadString('\n')
+		fmt.Printf("  %s[!] Network error (auth):%s %v\n\n", core.Red+core.Bold, core.Rst, err)
+		fmt.Printf("  %sPress ENTER to return%s", core.Dim, core.Rst)
+		core.Rd.ReadString('\n')
 		return
 	}
 	defer resU.Body.Close()
@@ -47,13 +45,13 @@ func blacklistCheck(target string) {
 	json.NewDecoder(resU.Body).Decode(&ur)
 
 	if ur.TempAuthKey == "" {
-		fmt.Printf("  %s[!] Failed to get TempAuthKey.%s\n\n", red+bold, rst)
-		fmt.Printf("  %sPress ENTER to return%s", dim, rst)
-		rd.ReadString('\n')
+		fmt.Printf("  %s[!] Failed to get TempAuthKey.%s\n\n", core.Red+core.Bold, core.Rst)
+		fmt.Printf("  %sPress ENTER to return%s", core.Dim, core.Rst)
+		core.Rd.ReadString('\n')
 		return
 	}
 
-	fmt.Printf("  %s[~]%s Checking against mxtoolbox...\n\n", yellow+bold, rst)
+	fmt.Printf("  %s[~]%s Checking against mxtoolbox...\n\n", core.Yellow+core.Bold, core.Rst)
 
 	// 2. Query Blacklist
 	q := url.Values{}
@@ -68,15 +66,15 @@ func blacklistCheck(target string) {
 	req.Header.Set("Referer", reqU.Header.Get("Referer"))
 	req.Header.Set("TempAuthorization", ur.TempAuthKey)
 
-	res, err := hc.Do(req)
+	res, err := core.Hc.Do(req)
 	if err != nil {
-		fmt.Printf("  %s[!] Network error (lookup):%s %v\n", red+bold, rst, err)
+		fmt.Printf("  %s[!] Network error (lookup):%s %v\n", core.Red+core.Bold, core.Rst, err)
 	} else {
 		defer res.Body.Close()
 		body, _ := io.ReadAll(res.Body)
 
 		if res.StatusCode != 200 {
-			fmt.Printf("  %s[!] API Error: HTTP %d%s\n", red+bold, res.StatusCode, rst)
+			fmt.Printf("  %s[!] API Error: HTTP %d%s\n", core.Red+core.Bold, res.StatusCode, core.Rst)
 		} else {
 			var lr lookupResp
 			json.Unmarshal(body, &lr)
@@ -115,16 +113,16 @@ func blacklistCheck(target string) {
 			}
 
 			if len(listed) > 0 {
-				fmt.Printf("  %s[!] Listed in %d blacklists:%s\n", red+bold, len(listed), rst)
+				fmt.Printf("  %s[!] Listed in %d blacklists:%s\n", core.Red+core.Bold, len(listed), core.Rst)
 				for _, b := range listed {
-					fmt.Printf("      - %s%-18s%s  %s%s%s\n", white+bold, b.Name, rst, dim, b.Reason, rst)
+					fmt.Printf("      - %s%-18s%s  %s%s%s\n", core.White+core.Bold, b.Name, core.Rst, core.Dim, b.Reason, core.Rst)
 				}
 			} else {
-				fmt.Printf("  %s[OK] Not listed in any blacklists.%s\n", green+bold, rst)
+				fmt.Printf("  %s[OK] Not listed in any blacklists.%s\n", core.Green+core.Bold, core.Rst)
 			}
 		}
 	}
 
-	fmt.Printf("\n  %sPress ENTER to return%s", dim, rst)
-	rd.ReadString('\n')
+	fmt.Printf("\n  %sPress ENTER to return%s", core.Dim, core.Rst)
+	core.Rd.ReadString('\n')
 }

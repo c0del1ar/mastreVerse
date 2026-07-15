@@ -1,4 +1,4 @@
-package main
+package core
 
 import (
 	"fmt"
@@ -7,17 +7,17 @@ import (
 
 const sepW = 51
 
-func cls() { fmt.Print("\033[2J\033[H") }
-func nl()  { fmt.Print("\r\n") }
-func sep() { fmt.Printf("  %s%s%s\r\n", dim, strings.Repeat("-", sepW), rst) }
+func Cls() { fmt.Print("\033[2J\033[H") }
+func Nl()  { fmt.Print("\r\n") }
+func Sep() { fmt.Printf("  %s%s%s\r\n", Dim, strings.Repeat("─", sepW), Rst) }
 
-func banner() {
-	fmt.Printf("%s%s\r\n", cyan+bold, "")
+func Banner() {
+	fmt.Printf("%s%s\r\n", Cyan+Bold, "")
 	fmt.Print("  ╔╦╗╔═╗╔═╗╔╦╗╦═╗╔═╗╦  ╦╔═╗╦═╗╔═╗╔═╗\r\n")
 	fmt.Print("  ║║║╠═╣╚═╗ ║ ╠╦╝║╣ ╚╗╔╝║╣ ╠╦╝╚═╗║╣ \r\n")
 	fmt.Print("  ╩ ╩╩ ╩╚═╝ ╩ ╩╚═╚═╝ ╚╝ ╚═╝╩╚═╚═╝╚═╝\r\n")
-	fmt.Printf("%s", rst)
-	fmt.Printf("\r  %sReverse IP Lookup & Blacklist Checker  %s[%s]%s\r\n", dim, cyan+bold, Version, dim+rst)
-	sep()
-	nl()
+	fmt.Printf("%s", Rst)
+	fmt.Printf("\r  %sIP Lookup · Blacklist · Port Scanner  %s[%s]%s\r\n", Dim, Cyan+Bold, Version, Dim+Rst)
+	Sep()
+	Nl()
 }

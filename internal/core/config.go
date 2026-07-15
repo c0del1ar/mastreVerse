@@ -1,4 +1,4 @@
-package main
+package core
 
 import (
 	"bufio"
@@ -6,33 +6,37 @@ import (
 	"time"
 )
 
-const maxThreads = 50
+const MaxThreads = 50
 
 const (
-	rst     = "\033[0m"
-	bold    = "\033[1m"
-	dim     = "\033[2m"
+	Rst     = "\033[0m"
+	Bold    = "\033[1m"
+	Dim     = "\033[2m"
 	itl     = "\033[3m"
-	red     = "\033[31m"
-	green   = "\033[32m"
-	yellow  = "\033[33m"
+	Red     = "\033[31m"
+	Green   = "\033[32m"
+	Yellow  = "\033[33m"
 	blue    = "\033[34m"
 	magenta = "\033[35m"
-	cyan    = "\033[36m"
-	white   = "\033[97m"
+	Cyan    = "\033[36m"
+	White   = "\033[97m"
 	bgBlue  = "\033[44m"
 	bgDark  = "\033[40m"
 
-	whatsmyipURL    = "https://api.mxtoolbox.com/api/v1/utils/whatsmyip"
-	shodanURL       = "https://internetdb.shodan.io/"
-	bgpHEBaseURL    = "https://bgp.he.net/ip/"
-	hackertargetURL = "https://api.hackertarget.com/reverseiplookup/?q="
+	WhatsmyipURL     = "https://api.mxtoolbox.com/api/v1/utils/whatsmyip"
+	ShodanURL        = "https://internetdb.shodan.io/"
+	BgpHEBaseURL     = "https://bgp.he.net/ip/"
+	HackertargetURL  = "https://api.hackertarget.com/reverseiplookup/?q="
+	RapidDNSURL      = "https://rapiddns.io/sameip/"
+	GoogleDoHURL     = "https://dns.google/resolve"
+	CloudflareDoHURL = "https://cloudflare-dns.com/dns-query"
 )
 
-var hc = &http.Client{Timeout: 15 * time.Second}
+var Hc = &http.Client{Timeout: 15 * time.Second}
+var Version = "v1.1.0"
 
 // shared stdin reader (created after raw-mode UI exits)
-var rd *bufio.Reader
+var Rd *bufio.Reader
 
 // ══════════════════════════════════════════════════
 //  TYPES
@@ -45,14 +49,20 @@ type srcDef struct {
 	RateLabel string
 }
 
-var srcs = []srcDef{
+var Srcs = []srcDef{
 	{"DNS PTR", "ptr", true, "unlimited"},
 	{"Shodan InternetDB", "shodan", true, "unlimited"},
 	{"bgp.he.net", "bgphe", true, "unlimited"},
 	{"hackertarget.com", "ht", true, "! ~5/day"},
+	{"RapidDNS", "rapiddns", true, "unlimited"},
+	{"Google DoH", "gdoh", true, "unlimited"},
+	{"Cloudflare DoH", "cfdoh", true, "unlimited"},
 }
 
-type Options struct{ PTR, Shodan, BGPHE, HT bool }
+type Options struct {
+	PTR, Shodan, BGPHE, HT             bool
+	RapidDNS, GoogleDoH, CloudflareDoH bool
+}
 
 type Result struct {
 	Target  string
